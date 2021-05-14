@@ -27,7 +27,7 @@ def run_command(command: str) -> str:
     env = os.environ.copy()
     env["LANG"] = "C"
     output, _ = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, shell=True, env=env).communicate()
-    return output.decode("utf-8").rstrip("\r\n")
+    return output.decode("gb2312").rstrip("\r\n")
 
 
 def print_error(text) -> None:
@@ -61,7 +61,7 @@ def get_ssid() -> str:
         if ssid == "":
             print_error("SSID was not found")
 
-        ssid = re.findall(r"[^B]SSID\s+:\s(.*)", ssid)[0]
+        ssid = re.findall(r"[^B]SSID\s+:\s(.*)", ssid)[0].rstrip("\r\n")
 
     return ssid
 
@@ -85,8 +85,8 @@ def get_password(ssid: str) -> str:
             password = run_command(f"nmcli -s -g 802-11-wireless-security.psk connection show '{ssid}'")
 
     elif sys.platform == "win32":
-        password = run_command(f"netsh wlan show profile name=\"{ssid}\" key=clear | findstr Key")
-        password = re.findall(r"Key Content\s+:\s(.*)", password)[0]
+        password = run_command(f"netsh wlan show profile name=\"{ssid}\" key=clear | findstr 关键内容")
+        password = re.findall(r"关键内容\s+:\s(.*)", password)[0]
 
     if password == "":
         print_error("Could not find password")
